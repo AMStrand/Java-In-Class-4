@@ -1,5 +1,6 @@
 package edu.kvcc.cis298.criminalintent;
 
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -10,11 +11,14 @@ public class Crime {
     //Variables
     private UUID mId;
     private String mTitle;
+    private Date mDate;
+    private boolean mSolved;
 
     //Constructor
     public Crime() {
         //Generate unique id
         mId = UUID.randomUUID();
+        mDate = new Date();
     }
 
     //Getters and Setters
@@ -28,5 +32,21 @@ public class Crime {
 
     public void setTitle(String title) {
         mTitle = title;
+    }
+
+    public boolean isSolved() {
+        return mSolved;
+    }
+
+    public void setSolved(boolean solved) {
+        mSolved = solved;
+    }
+
+    public Date getDate() {
+        return mDate;
+    }
+
+    public void setDate(Date date) {
+        mDate = date;
     }
 }
