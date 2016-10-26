@@ -1,5 +1,6 @@
 package edu.kvcc.cis298.criminalintent;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -8,7 +9,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -36,7 +41,7 @@ public class CrimeListFragment extends Fragment {
             // lay out the individual views that make up the recycler view:
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-            // Call the UpdateUI method to set up teh recyclerView with data:
+            // Call the UpdateUI method to set up the recyclerView with data:
         UpdateUI();
 
             // Return the view:
@@ -44,17 +49,44 @@ public class CrimeListFragment extends Fragment {
 
     }
 
-    private class CrimeHolder extends RecyclerView.ViewHolder {
+    public class CrimeHolder extends RecyclerView.ViewHolder
+    implements View.OnClickListener {
             // Add a title variable to the viewHolder:
-        public TextView mTitleTextView;
+        private TextView mTitleTextView;
+        private TextView mDateTextView;
+        private CheckBox mSolvedCheckBox;
+
+            // When a crime is clicked, enter the CrimeActivity:
+        @Override
+        public void onClick(View v) {
+            Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            startActivity(intent);
+        }
+
+        // Variable to hold a single crime:
+        private Crime mCrime;
 
             // Constructor for the CrimeHolder:
         public CrimeHolder (View itemView) {
                 // Call the parent constructor:
             super(itemView);
+            itemView.setOnClickListener(this);
 
                 // Get and assign the passed itemView to the TextView variable:
-            mTitleTextView = (TextView) itemView;
+            mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_crime_title_text_view);
+            mDateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
+            mSolvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solved_check_box);
+        }
+
+            // Write a method to take in an instance of a crime and assign the crime properties
+            // to the various view widgets:
+        public void bindCrime(Crime crime) {
+                // Assign the passed in crime to the class level variable:
+            mCrime = crime;
+                // Set the TextViews and CheckBox based on the current crime:
+            mTitleTextView.setText(mCrime.getTitle());
+            mDateTextView.setText(mCrime.getDate().toString());
+            mSolvedCheckBox.setChecked(mCrime.isSolved());
         }
 
     }
@@ -68,14 +100,13 @@ public class CrimeListFragment extends Fragment {
             mCrimes = crimeList;
         }
 
-
         @Override
         public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 // Get a reference to a layout inflater to inflate our view:
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
 
                 // Use the inflater to inflate the default android list view:
-            View view = layoutInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+            View view = layoutInflater.inflate(R.layout.list_item_crime, parent, false);
 
                 // Return a new CrimeHolder and pass in the view we just created:
             return new CrimeHolder(view);
@@ -86,14 +117,21 @@ public class CrimeListFragment extends Fragment {
                 // Get the crime out of the crimes list:
             Crime crime = mCrimes.get(position);
 
-                // Set the text on the viewHolder's TextView widget:
-            holder.mTitleTextView.setText(crime.getTitle());
+                // Send the crime to the bindCrime method to set the widget data:
+            holder.bindCrime(crime);
         }
 
         @Override
         public int getItemCount() {
             return mCrimes.size();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+            // Update the UI when returning to this fragment:
+        UpdateUI();
     }
 
     private void UpdateUI() {
@@ -104,12 +142,18 @@ public class CrimeListFragment extends Fragment {
             // Get the list of crimes from the singleton CrimeLab and save to local var:
         List<Crime> crimes = crimeLab.getCrimes();
 
+        if (mAdapter == null) {
             // Create a new CrimeAdapter and send over the crime list so that it can
             // make new viewHolders and bind data to the viewHolders:
-        mAdapter = new CrimeAdapter(crimes);
+            mAdapter = new CrimeAdapter(crimes);
 
             // Set the Adapter on the RecyclerView:
-        mCrimeRecyclerView.setAdapter(mAdapter);
+            mCrimeRecyclerView.setAdapter(mAdapter);
+        }
+        else {
+            // Notify the adapter that the data may have changed and it should reload:
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
 }
