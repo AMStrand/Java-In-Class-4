@@ -19,7 +19,7 @@
         </activity>
 
             <!-- Other activities - no intent necessary -->
-        <activity android:name=".CrimeActivity">
+        <activity android:name=".CrimePagerActivity">
 
         </activity>
     </application>
