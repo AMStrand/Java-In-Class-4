@@ -21,6 +21,14 @@ public class Crime {
         mDate = new Date();
     }
 
+    // 4 parameter constructor:
+    public Crime(UUID uuid, String title, Date date, boolean solved) {
+        mId = uuid;
+        mTitle = title;
+        mDate = date;
+        mSolved = solved;
+    }
+
     //Getters and Setters
     public UUID getId() {
         return mId;

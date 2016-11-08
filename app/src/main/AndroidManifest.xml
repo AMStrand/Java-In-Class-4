@@ -18,9 +18,11 @@
             </intent-filter>
         </activity>
 
-            <!-- Other activities - no intent necessary -->
-        <activity android:name=".CrimePagerActivity">
-
+            <!-- Other activities - no intent necessary here -->
+            <!-- Specifying the parent activity gives a back button on child activities -->
+        <activity android:name=".CrimePagerActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".CrimeListActivity">
         </activity>
     </application>
 

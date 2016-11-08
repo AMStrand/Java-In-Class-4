@@ -4,9 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -27,6 +31,22 @@ public class CrimeListFragment extends Fragment {
         // Declare a new crimeAdapter using the inner class written below in this file:
     private CrimeAdapter mAdapter;
 
+        // Bool to know whether the subtitle is being shown:
+    private boolean mSubtitleVisible;
+
+        // String key for saving whether to show the subtitle:
+    private static String SAVED_SUBTITLE_VISIBLE = "subtitle";
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+            // Add this to let the fragment manager know it has an options menu,
+            // so the fragment manager will call the onCreateOptionsMenu method,
+            // where the work is done to inflate the menu and display it:
+        setHasOptionsMenu(true);
+    }
+
     @Nullable
     @Override
         // In a fragment, the onCreateView method occurs when the view is created, so this override method is used:
@@ -40,6 +60,11 @@ public class CrimeListFragment extends Fragment {
             // Set the layout manager for the recycler view - it needs to know how to
             // lay out the individual views that make up the recycler view:
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        // Get the bool for whether to show the subtitle:
+        if (savedInstanceState != null) {
+            mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
+        }
 
             // Call the UpdateUI method to set up the recyclerView with data:
         UpdateUI();
@@ -134,6 +159,65 @@ public class CrimeListFragment extends Fragment {
         UpdateUI();
     }
 
+        // Override method called when the menu is created:
+        // In the onCreate method, we set setHasOptionsMenu to true,
+        // so the fragment manager knows to call this method:
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+            // Inflate the proper layout with the passed in menu:
+        inflater.inflate(R.menu.fragment_crime_list, menu);
+
+        MenuItem subtitleItem = menu.findItem(R.id.menu_item_show_subtitle);
+
+        if (mSubtitleVisible) {
+            subtitleItem.setTitle(R.string.hide_subtitle);
+        } else {
+            subtitleItem.setTitle(R.string.show_subtitle);
+        }
+    }
+
+        // Method for when a menu item is selected:
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+            // Switch statement to determine item selected and work accordingly:
+        switch (item.getItemId()) {
+            case R.id.menu_item_new_crime:
+                    // Create a new crime:
+                Crime crime = new Crime();
+                    // Add the new crime to the singleton crime lab:
+                CrimeLab.get(getActivity()).AddCrime(crime);
+                    // Enter the crime pager activity to add information for the crime
+                    // by asking that activity for its intent then using it to start that activity:
+                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
+                startActivity(intent);
+                    // Method was successful, no further processing necessary:
+                return true;
+            case R.id.menu_item_show_subtitle:
+                    // Change whether the subtitles are visible when the item is clicked:
+                mSubtitleVisible = !mSubtitleVisible;
+                    // Makes the app recreate the menu:
+                getActivity().invalidateOptionsMenu();
+                    // Update the subtitles:
+                UpdateSubtitle();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+        // Save whether the subtitle is visible on save instance state:
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(SAVED_SUBTITLE_VISIBLE, mSubtitleVisible);
+    }
+
+    // ******************************************************************************************
+
+    // PRIVATE METHODS:
+
     private void UpdateUI() {
             // Using the static method on the CrimeLab class to return the singleton.
             // This will get us our one and only one instance of the CrimeLab.
@@ -154,6 +238,23 @@ public class CrimeListFragment extends Fragment {
             // Notify the adapter that the data may have changed and it should reload:
             mAdapter.notifyDataSetChanged();
         }
+
+        UpdateSubtitle();
+    }
+
+    private void UpdateSubtitle() {
+
+        CrimeLab crimeLab = CrimeLab.get(getActivity());
+        int crimeCount = crimeLab.getCrimes().size();
+        String subtitle = getString(R.string.subtitle_format, crimeCount);
+
+        if (!mSubtitleVisible) {
+            subtitle = null;
+        }
+
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setSubtitle(subtitle);
+
     }
 
 }
