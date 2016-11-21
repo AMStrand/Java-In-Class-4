@@ -8,20 +8,28 @@ import java.util.UUID;
  */
 public class Crime {
 
-    //Variables
+        // Variables:
     private UUID mId;
     private String mTitle;
     private Date mDate;
     private boolean mSolved;
 
-    //Constructor
+        // Constructor for a crime that needs a uuid:
     public Crime() {
-        //Generate unique id
-        mId = UUID.randomUUID();
+            // Calls this class again, but creates a random uuid
+            // to send over to the other constructor:
+        this(UUID.randomUUID());
+    }
+
+        // Constructor for a crime with a given uuid:
+        // Primarily used to create a new Crime when
+        // reading from the database.
+    public Crime(UUID id) {
+        mId = id;
         mDate = new Date();
     }
 
-    // 4 parameter constructor:
+        // 4 parameter constructor:
     public Crime(UUID uuid, String title, Date date, boolean solved) {
         mId = uuid;
         mTitle = title;
@@ -29,7 +37,7 @@ public class Crime {
         mSolved = solved;
     }
 
-    //Getters and Setters
+        // Getters and Setters:
     public UUID getId() {
         return mId;
     }

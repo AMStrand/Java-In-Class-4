@@ -125,6 +125,7 @@ public class CrimeListFragment extends Fragment {
             mCrimes = crimeList;
         }
 
+        @Nullable
         @Override
         public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 // Get a reference to a layout inflater to inflate our view:
@@ -137,6 +138,7 @@ public class CrimeListFragment extends Fragment {
             return new CrimeHolder(view);
         }
 
+        @Nullable
         @Override
         public void onBindViewHolder(CrimeHolder holder, int position) {
                 // Get the crime out of the crimes list:
@@ -149,6 +151,11 @@ public class CrimeListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mCrimes.size();
+        }
+
+            // Method to set the crimes for the adapter:
+        public void setCrimes(List<Crime> crimes) {
+            mCrimes = crimes;
         }
     }
 
@@ -227,18 +234,20 @@ public class CrimeListFragment extends Fragment {
         List<Crime> crimes = crimeLab.getCrimes();
 
         if (mAdapter == null) {
-            // Create a new CrimeAdapter and send over the crime list so that it can
-            // make new viewHolders and bind data to the viewHolders:
+                // Create a new CrimeAdapter and send over the crime list so that it can
+                // make new viewHolders and bind data to the viewHolders:
             mAdapter = new CrimeAdapter(crimes);
 
-            // Set the Adapter on the RecyclerView:
+                // Set the Adapter on the RecyclerView:
             mCrimeRecyclerView.setAdapter(mAdapter);
         }
         else {
-            // Notify the adapter that the data may have changed and it should reload:
+                // Set the crimes list:
+            mAdapter.setCrimes(crimes);
+                // Notify the adapter that the data may have changed and it should reload:
             mAdapter.notifyDataSetChanged();
         }
-
+            // Update the subtitle:
         UpdateSubtitle();
     }
 
