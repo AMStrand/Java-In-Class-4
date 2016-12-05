@@ -24,6 +24,8 @@ import edu.kvcc.cis298.criminalintent.database.CrimeDbSchema.CrimeTable;
 public class CrimeBaseHelper extends SQLiteOpenHelper {
         // Variable to hold the context:
     Context mContext;
+        // Add a bool to know whether to seed the database:
+    boolean mSeedDatabase;
 
         // Create a version number that can be used to trigger a call to onUpgrade.
         // If when the app starts, the existing database version # does not match
@@ -34,8 +36,9 @@ public class CrimeBaseHelper extends SQLiteOpenHelper {
 
     public CrimeBaseHelper (Context context) {
         super(context, DATABASE_NAME, null, VERSION);
-
+            // Initialize class-level variables:
         mContext = context;
+        mSeedDatabase = false;
     }
 
         // OnCreate method called to create the database if it does not exist:
@@ -46,16 +49,26 @@ public class CrimeBaseHelper extends SQLiteOpenHelper {
                 CrimeTable.Cols.UUID + ", " +
                 CrimeTable.Cols.TITLE + ", " +
                 CrimeTable.Cols.DATE + ", " +
-                CrimeTable.Cols.SOLVED + ")"
+                CrimeTable.Cols.SOLVED + ", " +
+                CrimeTable.Cols.SUSPECT + ")"
         );
-            // Now that the table is created, use the csv file to seed the database with data:
-        //LoadCrimeList();
+            // Now that the table is created, set the bool to true to seed the database:
+        mSeedDatabase = true;
     }
 
         // OnUpgrade method called if the version number doesn't match that in the code:
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+            // If the database has been created, seed the database:
+        if (mSeedDatabase) {
+            LoadCrimeList();
+        }
     }
 
     private void LoadCrimeList() {
@@ -90,8 +103,6 @@ public class CrimeBaseHelper extends SQLiteOpenHelper {
                 CrimeLab mCrimeList = CrimeLab.get(mContext);
 
                 mCrimeList.AddCrime(new Crime(uuid, stringTitle, date, solved));
-
-
             }
         }
         catch (Exception e) {

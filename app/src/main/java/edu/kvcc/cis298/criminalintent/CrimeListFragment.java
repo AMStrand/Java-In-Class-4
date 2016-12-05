@@ -138,7 +138,6 @@ public class CrimeListFragment extends Fragment {
             return new CrimeHolder(view);
         }
 
-        @Nullable
         @Override
         public void onBindViewHolder(CrimeHolder holder, int position) {
                 // Get the crime out of the crimes list:
